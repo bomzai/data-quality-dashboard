@@ -1,1 +1,1 @@
-# data_quality_dashboard_streamlite_app
+# Data Quality Dashboard - Streamlit app
