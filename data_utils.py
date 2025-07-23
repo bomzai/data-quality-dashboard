@@ -1,6 +1,7 @@
 import pandas as pd
 from snowflake.snowpark.context import get_active_session
 from config import SCHEMA, DEFAULT_CONFIG,LOCAL, connect_to_snowflake
+import streamlit as st  
 
 
 def load_data_from_snowflake():
@@ -39,17 +40,37 @@ def get_date_range(df):
     return min_date, max_date
 
 
+# def apply_granularity(df, granularite, colonne="SCAN_TIMESTAMP"):
+#     """Applique la granularité temporelle spécifiée"""
+#     if granularite == "Jour":
+#         return df[colonne].dt.to_period("D").dt.to_timestamp()
+#     elif granularite == "Semaine":
+#         return df[colonne].dt.to_period("W").dt.start_time
+#     elif granularite == "Mois":
+#         return df[colonne].dt.to_period("M").dt.to_timestamp()
+#     elif granularite == "Trimestre":
+#         trimestre = df[colonne].dt.to_period("Q").dt.start_time
+#         return pd.to_datetime(trimestre)
+
+
+
 def apply_granularity(df, granularite, colonne="SCAN_TIMESTAMP"):
-    """Applique la granularité temporelle spécifiée"""
+    """Applique la granularité temporelle spécifiée à une colonne datetime"""
+    if not pd.api.types.is_datetime64_any_dtype(df[colonne]):
+        df[colonne] = pd.to_datetime(df[colonne])
+
     if granularite == "Jour":
         return df[colonne].dt.to_period("D").dt.to_timestamp()
     elif granularite == "Semaine":
-        return df[colonne].dt.to_period("W").dt.start_time
+        test = df[colonne].dt.to_period("W").dt.start_time
+        st.dataframe(test) 
+        return test
     elif granularite == "Mois":
         return df[colonne].dt.to_period("M").dt.to_timestamp()
     elif granularite == "Trimestre":
-        trimestre = df[colonne].dt.to_period("Q").dt.start_time
-        return pd.to_datetime(trimestre)
+        return df[colonne].dt.to_period("Q").dt.start_time
+    else:
+        raise ValueError(f"Granularité non supportée : {granularite}")
 
 
 def interpret_score(data):
@@ -84,12 +105,5 @@ def create_pivot_table(filtered_df, group_cols):
         .unstack()
     )
     
-    # Calcul de la globalité
-    globalite = (
-        filtered_df
-        .groupby(group_cols)
-        .apply(interpret_score)
-    )
-    
-    pivot_table["Globalité"] = globalite
+    pivot_table["Globalité"] = pivot_table.mean(axis=1)
     return pivot_table

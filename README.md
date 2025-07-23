@@ -49,3 +49,28 @@ Composants d'interface utilisateur :
 - Filtres de dates et granularité
 - Sélecteurs de référentiels et tables
 - Validation des données
+
+### Comment tourner le code en local.
+Créer le fichier `config.yaml` et remplir les champs suivants :
+```
+snowflake:
+  account: "YOUR_ACCOUNT"
+  user: "USERNAME"
+  private_key_path: "PATH_TO_PRIVATE_KEY"
+  private_key_passphrase: "YOUR_KEY_PASSPHRASE"
+  role: "YOUR_ROLE"
+  database: "YOUR_DATABASE"
+  schema: "YOUR_SCHEMA"
+  warehouse: "YOUR_WAREHOUSE"
+```
+
+### Installer les prérequis 
+```bash
+pip install -r requirements.txt
+```
+
+
+### Lancer l'application Streamlit en local
+```bash
+streamlit run main.py
+```
